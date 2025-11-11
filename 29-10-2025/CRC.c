@@ -1,0 +1,111 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
+int main()
+{
+    char rem[50], a[50], s[50], c, msj[50], gen[30];
+    int i, genlen, t, j, flag = 0, k, n;
+
+    printf("Enter the generator polynomial: ");
+    gets(gen); // avoid in real code — use fgets()
+    printf("Generator polynomial (CRC-CCITT): %s\n", gen);
+
+    genlen = strlen(gen);
+    k = genlen - 1;
+
+    printf("Enter the message: ");
+    n = 0;
+    while ((c = getchar()) != '\n' && c != EOF)
+    {
+        msj[n++] = c;
+    }
+    msj[n] = '\0';
+
+    // Copy message and append zeros
+    for (i = 0; i < n; i++)
+        a[i] = msj[i];
+    for (i = 0; i < k; i++)
+        a[n + i] = '0';
+    a[n + k] = '\0';
+
+    printf("\nMessage polynomial appended with zeros:\n");
+    puts(a);
+
+    // Division step (XOR)
+    for (i = 0; i < n; i++)
+    {
+        if (a[i] == '1')
+        {
+            t = i;
+            for (j = 0; j < genlen; j++, t++)
+            {
+                if (a[t] == gen[j])
+                    a[t] = '0';
+                else
+                    a[t] = '1';
+            }
+        }
+    }
+
+    // Get remainder
+    for (i = 0; i < k; i++)
+        rem[i] = a[n + i];
+    rem[k] = '\0';
+
+    printf("\nThe checksum (remainder) is:\n");
+    puts(rem);
+
+    printf("\nFinal transmitted message (message + checksum):\n");
+    for (i = 0; i < n; i++)
+        a[i] = msj[i];
+    for (i = 0; i < k; i++)
+        a[n + i] = rem[i];
+    a[n + k] = '\0';
+    puts(a);
+
+    // Verification
+    printf("\nEnter the received message: ");
+    n = 0;
+    while ((c = getchar()) != '\n' && c != EOF)
+    {
+        s[n++] = c;
+    }
+    s[n] = '\0';
+
+    for (i = 0; i < n - k; i++)
+    {
+        if (s[i] == '1')
+        {
+            t = i;
+            for (j = 0; j < genlen; j++, t++)
+            {
+                if (s[t] == gen[j])
+                    s[t] = '0';
+                else
+                    s[t] = '1';
+            }
+        }
+    }
+
+    for (i = 0; i < k; i++)
+        rem[i] = s[n - k + i];
+    rem[k] = '\0';
+
+    flag = 0;
+    for (i = 0; i < k; i++)
+    {
+        if (rem[i] == '1')
+        {
+            flag = 1;
+            break;
+        }
+    }
+
+    if (flag == 0)
+        printf("\nReceived polynomial is error-free ✅\n");
+    else
+        printf("\nReceived polynomial contains errors ❌\n");
+
+    return 0;
+}
