@@ -103,9 +103,9 @@ int main()
     }
 
     if (flag == 0)
-        printf("\nReceived polynomial is error-free ✅\n");
+        printf("\nReceived polynomial is error-free\n");
     else
-        printf("\nReceived polynomial contains errors ❌\n");
+        printf("\nReceived polynomial contains errors\n");
 
     return 0;
 }
